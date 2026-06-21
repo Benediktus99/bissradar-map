@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>BissRadar Map Picker</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+<style>
+html, body {
+  margin:0;
+  padding:0;
+  width:100%;
+  height:100%;
+}
+
+#map {
+  width:100%;
+  height:100vh;
+}
+
+#confirmBtn {
+  position:absolute;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:1000;
+
+  background:#2563eb;
+  color:white;
+  border:none;
+  padding:14px 24px;
+  border-radius:12px;
+  font-size:16px;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div id="map"></div>
+
+<button id="confirmBtn">
+Standort übernehmen
+</button>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+
+let selectedLat = 51.0;
+let selectedLon = 10.0;
+
+const map = L.map('map').setView([51.0,10.0], 6);
+
+L.tileLayer(
+'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+{
+maxZoom:19,
+attribution:'© OpenStreetMap'
+}
+).addTo(map);
+
+let marker;
+
+navigator.geolocation.getCurrentPosition(
+(position) => {
+
+selectedLat = position.coords.latitude;
+selectedLon = position.coords.longitude;
+
+map.setView(
+[selectedLat, selectedLon],
+15
+);
+
+marker = L.marker(
+[selectedLat, selectedLon]
+).addTo(map);
+
+},
+(error) => {
+console.log(error);
+}
+);
+
+map.on('click', function(e){
+
+selectedLat = e.latlng.lat;
+selectedLon = e.latlng.lng;
+
+if(marker){
+map.removeLayer(marker);
+}
+
+marker = L.marker([
+selectedLat,
+selectedLon
+]).addTo(map);
+
+});
+
+document
+.getElementById('confirmBtn')
+.addEventListener('click', () => {
+
+const url =
+'https://selected-location.local/?lat='
++ selectedLat
++ '&lon='
++ selectedLon;
+
+window.location.href = url;
+
+});
+
+</script>
+
+</body>
+</html>
